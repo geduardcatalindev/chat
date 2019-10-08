@@ -15,7 +15,7 @@ tables = [conversations, messages, users]
 now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
 if len(sys.argv) < 2:
-    print("ACTIONS: newc | newm | listc | listm | clean")
+    print("ACTIONS: -help | -newc | -newm | -newu | -listc | -listm | -listu | -clean")
 elif sys.argv[1] == '-help':
     print(
 """* CLI for adding in, listing from and cleaning conversations and messages tables ------------------------------------*
@@ -23,7 +23,8 @@ elif sys.argv[1] == '-help':
 | -newm  | python chat.py -newm user message id_conversation      | creates a new message in the given conversation  |
 | -newu  | python chat.py -newu user1                             | creates a new user                               |
 | -listc | python chat.py -listc                                  | list all conversation                            |
-| -listc | python chat.py -listm id_conversation                  | list all the messages for the given conversation |
+| -listm | python chat.py -listm id_conversation                  | list all the messages in the given conversation  |
+| -listu | python chat.py -listu                                  | list all users                                   |
 | -clean | python chat.py -clean                                  | clean the conversations and the messages tables  |
 *--------------------------------------------------------------------------------------------------------------------*""")
 elif sys.argv[1] == '-newc':
@@ -53,6 +54,8 @@ elif sys.argv[1] == '-newu':
     }).run(connection)
 elif sys.argv[1] == '-listc':
     print(conversations.run(connection))
+elif sys.argv[1] == '-listu':
+    print(users.run(connection))
 elif sys.argv[1] == '-listm':
     print(messages.filter({
         "id_conversation": sys.argv[2]
