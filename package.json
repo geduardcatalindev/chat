@@ -1,0 +1,32 @@
+{
+  "name": "chat",
+  "version": "0.0.1",
+  "description": "RethinkDB + Node + React chat application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-dev": "env NODE_ENV=development nodemon index.js",
+    "start-dev-old": "env NODE_ENV=development nodemon index_old.js",
+    "start-prod": "env NODE_ENV=production nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geduardcatalindev/chat.git"
+  },
+  "author": "geduardcatalindev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/geduardcatalindev/chat/issues"
+  },
+  "homepage": "https://github.com/geduardcatalindev/chat#readme",
+  "dependencies": {
+    "async": "^3.1.0",
+    "dotenv": "^8.1.0",
+    "express": "^4.17.1",
+    "rethinkdb": "^2.3.3",
+    "socket.io": "^2.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.3"
+  }
+}
