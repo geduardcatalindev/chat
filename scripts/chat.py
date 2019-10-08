@@ -14,10 +14,6 @@ tables = [conversations, messages, users]
 
 now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
-def randomString(stringLength=10):
-    letters = string.ascii_lowercase
-    return ''.join(random.choice(letters) for i in range(stringLength))
-
 if len(sys.argv) < 2:
     print("ACTIONS: newc | newm | listc | listm | clean")
 elif sys.argv[1] == '-help':
@@ -31,36 +27,23 @@ elif sys.argv[1] == '-help':
 | -clean | python chat.py -clean                                  | clean the conversations and the messages tables  |
 *--------------------------------------------------------------------------------------------------------------------*""")
 elif sys.argv[1] == '-newc':
-    members = sys.argv[3].split(',')
     conversations.insert({
         "id_conversation": sys.argv[2],
-        "members": members,
+        "members": sys.argv[3].split(','),
         'created_at': now,
         'updated_at': now
     }).run(connection)
 elif sys.argv[1] == '-newm':
-    if len(sys.argv) >= 3:
-        user = sys.argv[2]
-    else:
-        user = randomString(5)
-    if len(sys.argv) >= 4:
-        message = sys.argv[3]
-    else:
-        message = randomString(15)
-    if len(sys.argv) >= 5:
-        id_conversation = sys.argv[4]
-    else:
-        id_conversation = 1
     messages.insert({
         'payload':
         {
-            'user': user,
-            'message': message,
+            'user': sys.argv[2],
+            'message': sys.argv[3],
         },
-        'id_conversation': id_conversation,
-        'created_at': now,
-        'updated_at': now,
+        'id_conversation': sys.argv[4],
         'sent': 0,
+        'created_at': now,
+        'updated_at': now
     }).run(connection)
 elif sys.argv[1] == '-newu':
     users.insert({

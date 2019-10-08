@@ -41,7 +41,7 @@ async.waterfall([
         });
     },
     
-    // create the table in case it does not exist already
+    // create the tables in case it does not exist already
     function createConversationsTable(connection, callback) {
         rdb.tableList().contains('conversations').do(function(tableExists) {
             return rdb.branch(tableExists, { tables_created: 0 }, rdb.tableCreate('conversations'));
@@ -49,7 +49,6 @@ async.waterfall([
             callback(err, connection);
         });
     },
-
     function createMessagesTable(connection, callback) {
         rdb.tableList().contains('messages').do(function(tableExists) {
             return rdb.branch(tableExists, { tables_created: 0 }, rdb.tableCreate('messages'));
@@ -57,7 +56,6 @@ async.waterfall([
             callback(err, connection);
         });
     },
-
     function createUsersTable(connection, callback) {
         rdb.tableList().contains('users').do(function(tableExists) {
             return rdb.branch(tableExists, { tables_created: 0 }, rdb.tableCreate('users'));
