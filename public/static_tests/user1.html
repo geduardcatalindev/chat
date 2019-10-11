@@ -1,0 +1,26 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>WebSockets</title>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <div id="messages"></div>
+    </body>
+    <script>
+        const username = 'user1';
+        const socket = io.connect('http://localhost:7356');
+        socket.emit('connected', {username: username});
+        socket.on('new_message', (data) => {
+            $('#messages').append("<div><span>" + data.user + "</span>: <span>" + data.message + "</span>");
+            socket.emit('read', {id: data.id});
+        });
+        socket.on('conversations', (data) => {
+            console.log(JSON.parse(data.conversations));
+        })
+    </script>
+</html>

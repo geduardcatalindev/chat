@@ -1,4 +1,6 @@
 require('./configs/env');
+const DB_CONFIG = require('./configs/db');
+const EXPRESS_CONFIG = require('./configs/express');
 
 const http = require('http');
 const express = require('express');
@@ -6,17 +8,7 @@ const socket = require('socket.io');
 const async = require('async');
 const rdb = require('rethinkdb');
 
-const config = {
-    rethinkdb: {
-        host: 'localhost',
-        port: 28015,
-        authKey: '',
-        db: 'chat'
-    },
-    express: {
-        port: 7356
-    }
-};
+const d = require('./data/get');
 
 const app = express();
 const server = http.createServer(app);
@@ -24,18 +16,18 @@ const io = socket(server);
 
 function startExpress(connection) {
     server._rdbConn = connection;
-    server.listen(config.express.port);
+    server.listen(EXPRESS_CONFIG.express.port);
 }
 
 async.waterfall([
     function connect(callback) {
-        rdb.connect(config.rethinkdb, callback);
+        rdb.connect(DB_CONFIG.rethinkdb, callback);
     },
     
     // create the database in case it does not exist already
     function createDatabase(connection, callback) {
-        rdb.dbList().contains(config.rethinkdb.db).do(function(databaseExists) {
-            return rdb.branch(databaseExists, { dbs_created: 0 }, rdb.dbCreate(config.rethinkdb.db));
+        rdb.dbList().contains(DB_CONFIG.rethinkdb.db).do(function(databaseExists) {
+            return rdb.branch(databaseExists, { dbs_created: 0 }, rdb.dbCreate(DB_CONFIG.rethinkdb.db));
         }).run(connection, function(err) {
             callback(err, connection);
         });
@@ -64,18 +56,19 @@ async.waterfall([
         });
     },
     
+    // listen for new messages and send them in the right conversation
     function listen(connection, callback) {
-        rdb.table('messages').changes().run(connection, function (err, cursor) {
+        rdb.table('messages').filter({sent: 0}).changes().run(connection, function (err, cursor) {
             if (err) throw err;
             cursor.each(function (err, row) {
                 if (err) throw err;
-    
-                // console.log(JSON.stringify(row, null, 2));
-                
-                let data = row.new_val;
-                io.sockets.emit('new_message', {
-                    // TODO: emit the new message through the socket in the right conversation
-                });
+                if (row.new_val) {
+                    io.sockets.emit('new_message', {
+                        id: row.new_val.id,
+                        user: row.new_val.payload.user,
+                        message: row.new_val.payload.message
+                    });
+                }
             });
             callback(err, connection);
         });
@@ -88,8 +81,13 @@ async.waterfall([
         }
     startExpress(connection);
     io.on('connection', (socket) => {
-        socket.on('received', (data) => {
-            rdb.table('conversations').update({sent: 1}).run(connection);
+        socket.on('connected', (data) => {
+            d.userConversations(io, rdb, connection, data.username);
+        });
+        socket.on('read', (data) => {
+            rdb.table('messages')
+            .filter({id: data.id})
+            .update({sent: 1}).run(connection);
         });
     });
 });
